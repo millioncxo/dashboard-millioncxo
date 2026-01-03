@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { defaultMetadata } from '@/lib/metadata';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = defaultMetadata;
 
@@ -19,7 +20,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="MillionCXO" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
