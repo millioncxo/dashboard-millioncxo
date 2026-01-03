@@ -1,0 +1,229 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --golden-opal: #c4b75b;
+  --imperial-emerald: #0b2e2b;
+  --ivory-silk: #f7f5f2;
+  --onyx-black: #0b0f0e;
+  --muted-jade: #668b77;
+  --petrol-smoke: #21514e;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--onyx-black);
+  background: var(--ivory-silk);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Button Styles */
+.btn-primary {
+  background: linear-gradient(135deg, var(--golden-opal) 0%, #d4c76b 100%);
+  color: var(--onyx-black);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(196, 183, 91, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(196, 183, 91, 0.3);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--imperial-emerald);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 2px solid var(--imperial-emerald);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--imperial-emerald);
+  color: var(--ivory-silk);
+}
+
+/* Card Styles */
+.card {
+  background: var(--ivory-silk);
+  border: 1px solid rgba(196, 183, 91, 0.2);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 24px rgba(196, 183, 91, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Input Styles */
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(196, 183, 91, 0.3);
+  border-radius: 0.5rem;
+  background: var(--ivory-silk);
+  color: var(--onyx-black);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--golden-opal);
+  box-shadow: 0 0 0 3px rgba(196, 183, 91, 0.1);
+}
+
+/* Sidebar */
+.sidebar {
+  background: var(--imperial-emerald);
+  color: var(--ivory-silk);
+  min-height: 100vh;
+  width: 250px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding: 2rem 1rem;
+}
+
+.sidebar-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: var(--ivory-silk);
+  text-decoration: none;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.sidebar-link:hover {
+  background: rgba(196, 183, 91, 0.2);
+  color: var(--golden-opal);
+}
+
+.sidebar-link.active {
+  background: var(--golden-opal);
+  color: var(--onyx-black);
+  font-weight: 600;
+}
+
+/* Main Content */
+.main-content {
+  margin-left: 250px;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+/* Loading Spinner */
+.spinner {
+  border: 3px solid rgba(196, 183, 91, 0.2);
+  border-top: 3px solid var(--golden-opal);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .sidebar {
+    display: none !important;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  /* Responsive buttons */
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  /* Responsive cards */
+  .card {
+    padding: 1rem;
+  }
+
+  /* Responsive tables */
+  table {
+    font-size: 0.8rem;
+  }
+
+  th, td {
+    padding: 0.5rem !important;
+    white-space: nowrap;
+  }
+
+  /* Responsive forms */
+  .input {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  /* Responsive grid - stack on mobile */
+  [style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  /* Tablet adjustments */
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  /* Tablet grid adjustments */
+  [style*="gridTemplateColumns"] {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  }
+}
+
+/* Ensure tables are scrollable on mobile */
+@media (max-width: 768px) {
+  [style*="overflowX"] {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+

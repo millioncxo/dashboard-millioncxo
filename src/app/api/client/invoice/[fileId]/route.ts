@@ -1,0 +1,79 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { connectToDatabase } from '@/lib/db';
+import Invoice from '@/models/Invoice';
+import { requireRole } from '@/lib/auth';
+import { downloadFileFromGridFS } from '@/lib/gridfs';
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { fileId: string } }
+) {
+  try {
+    // Verify client role and get user info
+    const authUser = await requireRole(['CLIENT'], req);
+
+    // Connect to database
+    await connectToDatabase();
+
+    // Get client ID from JWT
+    const clientId = authUser.clientId;
+
+    if (!clientId) {
+      return NextResponse.json(
+        { error: 'Client ID not found in authentication token' },
+        { status: 400 }
+      );
+    }
+
+    // Get file ID from params
+    const fileId = params.fileId;
+
+    // Verify invoice exists and belongs to this client
+    const invoice = await Invoice.findOne({ clientId, fileId });
+    if (!invoice) {
+      return NextResponse.json(
+        { error: 'Invoice not found or access denied' },
+        { status: 404 }
+      );
+    }
+
+    // Download file from GridFS
+    const fileData = await downloadFileFromGridFS(fileId);
+
+    // Convert Buffer to Uint8Array for NextResponse
+    const fileBuffer = Buffer.isBuffer(fileData.buffer) 
+      ? new Uint8Array(fileData.buffer) 
+      : fileData.buffer;
+
+    // Return file with proper headers
+    return new NextResponse(fileBuffer, {
+      headers: {
+        'Content-Type': fileData.contentType || 'application/pdf',
+        'Content-Disposition': `attachment; filename="${fileData.filename}"`,
+        'Content-Length': fileData.buffer.length.toString(),
+      },
+    });
+  } catch (error: any) {
+    console.error('Client invoice download error:', error);
+
+    if (error.message.includes('Unauthorized') || error.message.includes('Forbidden')) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.message.includes('Unauthorized') ? 401 : 403 }
+      );
+    }
+
+    if (error.message.includes('File not found')) {
+      return NextResponse.json(
+        { error: 'File not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'An error occurred while downloading invoice' },
+      { status: 500 }
+    );
+  }
+}
+

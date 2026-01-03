@@ -1,0 +1,48 @@
+{
+  "name": "millioncxo-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "next lint",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "seed:admin": "tsx scripts/seed-admin.ts",
+    "seed:plans": "tsx scripts/seed-plans.ts",
+    "test:db": "tsx scripts/test-connection.ts",
+    "check:client": "tsx scripts/check-client-data.ts"
+  },
+  "dependencies": {
+    "@types/pdfkit": "^0.17.4",
+    "bcryptjs": "^2.4.3",
+    "exceljs": "^4.4.0",
+    "gsap": "^3.14.2",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.555.0",
+    "mongodb": "^6.9.0",
+    "mongoose": "^8.20.1",
+    "next": "14.2.15",
+    "pdfkit": "^0.17.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^3.6.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.7.5",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@vitest/ui": "^2.1.8",
+    "dotenv": "^16.4.5",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.15",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}
