@@ -13,7 +13,8 @@
     "seed:admin": "tsx scripts/seed-admin.ts",
     "seed:plans": "tsx scripts/seed-plans.ts",
     "test:db": "tsx scripts/test-connection.ts",
-    "check:client": "tsx scripts/check-client-data.ts"
+    "check:client": "tsx scripts/check-client-data.ts",
+    "test:email": "tsx scripts/test-email.ts"
   },
   "dependencies": {
     "@types/pdfkit": "^0.17.4",
@@ -30,6 +31,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "recharts": "^3.6.0",
+    "resend": "^6.6.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

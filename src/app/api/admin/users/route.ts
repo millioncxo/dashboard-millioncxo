@@ -5,6 +5,7 @@ import { hashPassword, requireRole } from '@/lib/auth';
 import { encryptPassword } from '@/lib/password-encryption';
 import { notifyAndEmail } from '@/lib/notify';
 import { createUserSchema, validateOrThrow } from '@/lib/validation-schemas';
+import { sendAccountCreationEmail } from '@/lib/email-resend';
 import { handleApiError } from '@/lib/error-handler';
 import { logger } from '@/lib/logger';
 import { ZodError } from 'zod';
@@ -125,6 +126,32 @@ export async function POST(req: NextRequest) {
       message: `User created: ${newUser.name} (${newUser.role})`,
       email: newUser.email,
     });
+
+    // Send account creation email with credentials for SDR and CLIENT roles
+    if (role === 'SDR' || role === 'CLIENT') {
+      try {
+        sendAccountCreationEmail({
+          userName: newUser.name,
+          userEmail: newUser.email,
+          password: password, // Use plaintext password from request
+          role: role as 'SDR' | 'CLIENT',
+        }).catch((emailError) => {
+          // Log email errors but don't fail the request
+          logger.error('Failed to send account creation email', emailError, {
+            userId: newUser._id.toString(),
+            userEmail: newUser.email,
+            role,
+          });
+        });
+      } catch (emailError) {
+        // Log email errors but don't fail the request
+        logger.error('Error sending account creation email', emailError, {
+          userId: newUser._id.toString(),
+          userEmail: newUser.email,
+          role,
+        });
+      }
+    }
 
     // Return created user (without password hash)
     return NextResponse.json(

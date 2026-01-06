@@ -11,6 +11,7 @@ import { validateObjectIdOrError } from '@/lib/validation';
 import { handleApiError } from '@/lib/error-handler';
 import { logger } from '@/lib/logger';
 import { createUpdateSchema, validateOrThrow } from '@/lib/validation-schemas';
+import { sendUpdateEmail } from '@/lib/email-resend';
 
 // Ensure models are registered (helps with Next.js hot reloading)
 if (typeof window === 'undefined') {
@@ -215,6 +216,52 @@ export async function POST(
     const populatedUpdate = await Update.findById(newUpdate._id)
       .populate('sdrId', 'name email')
       .lean();
+
+    // Send email notification if update is visible to client
+    if (visibleToClient) {
+      try {
+        // Fetch client details for email
+        const client = await Client.findById(params.clientId)
+          .select('businessName pointOfContactName pointOfContactEmail additionalEmails')
+          .lean();
+
+        if (client) {
+          // Get SDR info
+          const sdr = await User.findById(sdrId).select('name email').lean();
+          const sdrName = sdr?.name || 'Your SDR';
+
+          // Send email (don't await to avoid blocking response)
+          sendUpdateEmail({
+            client: {
+              businessName: client.businessName,
+              pointOfContactName: client.pointOfContactName,
+              pointOfContactEmail: client.pointOfContactEmail,
+              additionalEmails: client.additionalEmails,
+            },
+            update: {
+              type,
+              title,
+              description,
+              date: date ? new Date(date) : new Date(),
+              sdrName,
+              sdrEmail: sdr?.email,
+            },
+          }).catch((emailError) => {
+            // Log email errors but don't fail the request
+            logger.error('Failed to send update email notification', emailError, {
+              updateId: newUpdate._id.toString(),
+              clientId: params.clientId,
+            });
+          });
+        }
+      } catch (emailError) {
+        // Log email errors but don't fail the request
+        logger.error('Error sending update email notification', emailError, {
+          updateId: newUpdate._id.toString(),
+          clientId: params.clientId,
+        });
+      }
+    }
 
     return NextResponse.json(
       {

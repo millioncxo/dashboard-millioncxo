@@ -8,6 +8,8 @@ import { createOrUpdateInvoice } from '@/lib/invoice-generator';
 import { handleApiError } from '@/lib/error-handler';
 import { logger } from '@/lib/logger';
 import mongoose from 'mongoose';
+import { sendInvoiceEmail } from '@/lib/email-resend';
+import { downloadFileFromGridFS } from '@/lib/gridfs';
 
 export async function POST(
   req: NextRequest,
@@ -207,6 +209,61 @@ export async function POST(
       );
     }
     console.log('[Invoice Generate API] Invoice verified in database:', foundInvoice._id?.toString() || foundInvoice.id);
+
+    // Send invoice email notification
+    try {
+      // Fetch client details with email addresses
+      const clientForEmail = await Client.findById(clientId)
+        .select('businessName pointOfContactName pointOfContactEmail additionalEmails')
+        .lean();
+
+      if (clientForEmail && result.fileId) {
+        // Download PDF from GridFS
+        try {
+          const pdfFile = await downloadFileFromGridFS(result.fileId);
+          
+          // Send email with PDF attachment (don't await to avoid blocking response)
+          sendInvoiceEmail({
+            client: {
+              businessName: clientForEmail.businessName,
+              pointOfContactName: clientForEmail.pointOfContactName,
+              pointOfContactEmail: clientForEmail.pointOfContactEmail,
+              additionalEmails: clientForEmail.additionalEmails,
+            },
+            invoice: {
+              invoiceNumber: result.invoice.invoiceNumber || '',
+              amount: result.invoice.amount,
+              currency: result.invoice.currency || 'USD',
+              invoiceDate: result.invoice.invoiceDate ? new Date(result.invoice.invoiceDate) : new Date(),
+              dueDate: result.invoice.dueDate ? new Date(result.invoice.dueDate) : new Date(),
+              description: result.invoice.description,
+            },
+            pdfBuffer: pdfFile.buffer,
+            pdfFilename: pdfFile.filename || `invoice-${result.invoice.invoiceNumber || 'invoice'}.pdf`,
+          }).catch((emailError) => {
+            // Log email errors but don't fail the request
+            logger.error('Failed to send invoice email notification', emailError, {
+              invoiceId: foundInvoice._id?.toString(),
+              invoiceNumber: result.invoice.invoiceNumber,
+              clientId,
+            });
+          });
+        } catch (pdfError) {
+          logger.error('Failed to download PDF for email attachment', pdfError, {
+            fileId: result.fileId,
+            invoiceNumber: result.invoice.invoiceNumber,
+            clientId,
+          });
+        }
+      }
+    } catch (emailError) {
+      // Log email errors but don't fail the request
+      logger.error('Error sending invoice email notification', emailError, {
+        invoiceId: foundInvoice._id?.toString(),
+        invoiceNumber: result.invoice.invoiceNumber,
+        clientId,
+      });
+    }
 
     return NextResponse.json(
       {
