@@ -167,6 +167,11 @@ export default function SdrDashboard() {
     }
   }, [router]);
 
+  // Fetch clients on mount
+  useEffect(() => {
+    fetchClients();
+  }, [fetchClients]);
+
   const fetchClientDetails = async (clientId: string) => {
     if (expandedClient === clientId && clientDetails) {
       setExpandedClient(null);
