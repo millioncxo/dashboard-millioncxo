@@ -504,7 +504,8 @@ export default function ClientsPage() {
     } finally {
       setLoading(false);
     }
-  }, [router, showNotification]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
 
   const fetchPlans = useCallback(async () => {
     try {
