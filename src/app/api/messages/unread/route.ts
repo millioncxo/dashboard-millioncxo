@@ -73,15 +73,18 @@ export async function GET(req: NextRequest) {
       // Get unread counts for each client
       const unreadCounts = await Promise.all(
         assignments.map(async (assignment) => {
-          const clientId = new mongoose.Types.ObjectId(assignment.clientId.toString());
+          // clientId is populated, so extract _id from the populated object
+          const client = assignment.clientId as any;
+          if (!client || !client._id) {
+            return null; // Skip if client not found
+          }
+          const clientId = new mongoose.Types.ObjectId(client._id.toString());
           const unreadCount = await Message.countDocuments({
             clientId,
             sdrId,
             senderRole: 'CLIENT',
             read: false,
           });
-
-          const client = assignment.clientId as any;
 
           return {
             clientId: clientId.toString(),
@@ -91,9 +94,10 @@ export async function GET(req: NextRequest) {
         })
       );
 
-      // Filter out clients with zero unread messages
-      const clientsWithUnread = unreadCounts.filter((item) => item.unreadCount > 0);
-      const totalUnread = unreadCounts.reduce((sum, item) => sum + item.unreadCount, 0);
+      // Filter out null entries and clients with zero unread messages
+      const validCounts = unreadCounts.filter((item): item is NonNullable<typeof item> => item !== null);
+      const clientsWithUnread = validCounts.filter((item) => item.unreadCount > 0);
+      const totalUnread = validCounts.reduce((sum, item) => sum + item.unreadCount, 0);
 
       return NextResponse.json(
         {
