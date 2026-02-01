@@ -1,16 +1,17 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { Suspense, useEffect, useState, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import LogoComponent from '@/components/LogoComponent';
 import { 
   Edit, Receipt, UserPlus, Trash2, Search, Filter, 
   ChevronRight, Download, Plus, Building2, User, 
   Mail, Globe, MapPin, Phone, ShieldCheck, CreditCard,
-  AlertCircle, Layout, List, History, StickyNote, X
+  AlertCircle, Layout, List, History, StickyNote, X, ExternalLink
 } from 'lucide-react';
 import { validateEmail, isValidEmail } from '@/lib/email-validation';
 import NotificationContainer, { useNotifications } from '@/components/Notification';
+import { apiFetch, ApiError } from '@/lib/api-client';
 
 interface Client {
   _id: string;
@@ -26,7 +27,7 @@ interface Client {
   numberOfLicenses?: number;
   planType?: 'REGULAR' | 'POC';
   pricePerLicense?: number;
-  currency?: 'USD' | 'INR';
+  currency?: 'USD' | 'INR' | 'EUR';
   customPlanName?: string;
   accountManagerId?: { _id: string; name: string; email: string };
   currentPlanId?: { _id: string; name: string };
@@ -351,8 +352,9 @@ function LicenseEditCard({ license, onUpdate }: LicenseEditCardProps) {
   );
 }
 
-export default function ClientsPage() {
+function ClientsPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [clients, setClients] = useState<Client[]>([]);
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -394,7 +396,7 @@ export default function ClientsPage() {
     customPlanName: '', // For "Other" plan option
     planType: 'REGULAR' as 'REGULAR' | 'POC',
     pricePerLicense: 0,
-    currency: 'USD' as 'USD' | 'INR',
+    currency: 'USD' as 'USD' | 'INR' | 'EUR',
     discountPercentage: 0,
     licenses: [] as LicenseInput[],
     numberOfLicenses: 0,
@@ -477,29 +479,19 @@ export default function ClientsPage() {
 
   const fetchClients = useCallback(async () => {
     try {
-      // Add timestamp to bypass cache and ensure fresh data
-      const response = await fetch(`/api/admin/clients?t=${Date.now()}`, {
+      const response = await apiFetch(`/api/admin/clients?t=${Date.now()}`, {
         cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache',
-        },
+        headers: { 'Cache-Control': 'no-cache' },
       });
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          router.push('/login');
-          return;
-        }
-        throw new Error('Failed to fetch clients');
-      }
       const data = await response.json();
-      
-      // Force React to recognize the state change by creating a new array
       const clientsList = data.clients || [];
-      
-      // Set clients state
       setClients([...clientsList]);
       setFilteredClients([...clientsList]);
     } catch (err: any) {
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        router.push('/login');
+        return;
+      }
       showNotification(`Failed to load clients: ${err.message || 'Unknown error'}`, 'error');
     } finally {
       setLoading(false);
@@ -509,16 +501,10 @@ export default function ClientsPage() {
 
   const fetchPlans = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/plans');
-      if (!response.ok) {
-        console.error('Failed to fetch plans:', response.status, response.statusText);
-        return;
-      }
+      const response = await apiFetch('/api/admin/plans');
       const data = await response.json();
       if (data.success && data.plans) {
         setPlans(data.plans || []);
-      } else {
-        console.error('Invalid plans response:', data);
       }
     } catch (err: any) {
       console.error('Failed to fetch plans:', err);
@@ -529,6 +515,19 @@ export default function ClientsPage() {
     fetchClients();
     fetchPlans();
   }, [fetchClients, fetchPlans]);
+
+  // Open client in edit panel when ?open=id is in URL (e.g. from "Open in new tab")
+  const openIdFromUrl = searchParams.get('open');
+  const openedForUrlRef = React.useRef<string | null>(null);
+  useEffect(() => {
+    if (!openIdFromUrl || clients.length === 0 || openedForUrlRef.current === openIdFromUrl) return;
+    const client = clients.find((c) => c._id === openIdFromUrl);
+    if (client) {
+      openedForUrlRef.current = openIdFromUrl;
+      handleEdit(client);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openIdFromUrl, clients]);
 
   // Auto-calculate invoice due date based on selected month/year (last day of month)
   useEffect(() => {
@@ -1041,40 +1040,15 @@ export default function ClientsPage() {
   }
 
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, var(--ivory-silk) 0%, #f0ede8 100%)',
-      padding: '1.5rem'
-    }}>
+    <div style={{ minHeight: '100vh', background: 'var(--ivory-silk)', padding: '1.5rem' }}>
       <NotificationContainer notifications={notifications} onDismiss={dismissNotification} />
       
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        gap: '1rem', 
-        marginBottom: '2rem',
-        background: 'white',
-        padding: '1.25rem 1.5rem',
-        borderRadius: '1rem',
-        boxShadow: '0 2px 12px rgba(11, 46, 43, 0.04)',
-        border: '1px solid rgba(196, 183, 91, 0.15)'
-      }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(11, 46, 43, 0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
           <LogoComponent width={42} height={24} hoverGradient={true} />
           <div>
-            <h1 style={{ 
-              fontSize: '1.75rem', 
-              fontWeight: '800', 
-              color: 'var(--imperial-emerald)',
-              letterSpacing: '-0.02em',
-              lineHeight: 1.2
-            }}>
-              Clients Management
-            </h1>
-            <p style={{ color: 'var(--muted-jade)', fontSize: '0.875rem', fontWeight: '500' }}>
-              Configure client portfolios, plans, and active licenses
-            </p>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--imperial-emerald)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Clients Management</h1>
+            <p style={{ color: 'var(--muted-jade)', fontSize: '0.875rem', fontWeight: '500' }}>Configure client portfolios, plans, and active licenses</p>
           </div>
         </div>
         {!showForm && (
@@ -1634,14 +1608,15 @@ export default function ClientsPage() {
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <select
                       value={formData.currency}
-                      onChange={(e) => setFormData({ ...formData, currency: e.target.value as 'USD' | 'INR' })}
+                      onChange={(e) => setFormData({ ...formData, currency: e.target.value as 'USD' | 'INR' | 'EUR' })}
                       className="input"
                       style={{ width: '100px', flexShrink: 0 }}
                     required
                           disabled={fixedPrice}
                     >
-                      <option value="USD">USD</option>
-                      <option value="INR">INR</option>
+                      <option value="USD">USD (US Dollar)</option>
+                      <option value="INR">INR (Indian Rupee)</option>
+                      <option value="EUR">EUR (Euro)</option>
                     </select>
                     <input
                       type="number"
@@ -2463,7 +2438,7 @@ export default function ClientsPage() {
                             const discountPercent = (client as any).discountPercentage || 0;
                             const discountAmount = baseCost > 0 && discountPercent > 0 ? (baseCost * discountPercent) / 100 : 0;
                             const finalCost = baseCost - discountAmount;
-                            const currencySymbol = (client as any).currency === 'INR' ? '₹' : '$';
+                            const currencySymbol = (client as any).currency === 'INR' ? '₹' : (client as any).currency === 'EUR' ? '€' : '$';
                             
                             if (baseCost > 0) {
                               return (
@@ -2483,7 +2458,29 @@ export default function ClientsPage() {
                           })()}
                         </td>
                         <td style={{ padding: '1.25rem', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
-                          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                            <a
+                              href={`/admin/clients?open=${client._id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                padding: '0.5rem',
+                                border: '1px solid rgba(196, 183, 91, 0.2)',
+                                background: 'white',
+                                borderRadius: '0.625rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.2s ease',
+                                color: 'var(--imperial-emerald)',
+                                textDecoration: 'none'
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(11, 46, 43, 0.03)'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; }}
+                              title="Open client"
+                            >
+                              <ExternalLink size={16} />
+                            </a>
                             <button
                               onClick={() => handleEdit(client)}
                               style={{
@@ -2516,5 +2513,13 @@ export default function ClientsPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function ClientsPage() {
+  return (
+    <Suspense fallback={<div className="p-4 flex items-center justify-center min-h-[200px]">Loading…</div>}>
+      <ClientsPageContent />
+    </Suspense>
   );
 }

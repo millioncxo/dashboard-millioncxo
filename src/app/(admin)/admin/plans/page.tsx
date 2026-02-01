@@ -216,35 +216,17 @@ export default function PlansPage() {
     <div style={{ 
       padding: '2rem',
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, var(--ivory-silk) 0%, #f0ede8 100%)'
+      background: 'var(--ivory-silk)'
     }}>
       {notification && <Notification {...notification} onClose={() => setNotification(null)} />}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '2.5rem' }}>
-        <div style={{ 
-          padding: '0.75rem',
-          background: 'white',
-          borderRadius: '1rem',
-          boxShadow: '0 4px 12px rgba(11, 46, 43, 0.05)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(11, 46, 43, 0.08)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <LogoComponent width={42} height={22} hoverGradient={true} />
-        </div>
-        <div style={{ flex: 1 }}>
-          <h1 style={{ 
-            fontSize: '1.875rem', 
-            fontWeight: '800', 
-            color: 'var(--imperial-emerald)',
-            letterSpacing: '-0.02em',
-            margin: 0
-          }}>
-            Service Catalog
-          </h1>
-          <p style={{ color: 'var(--muted-jade)', fontSize: '0.9375rem', fontWeight: '500', marginTop: '0.25rem' }}>
-            Architect and manage service offerings and pricing tiers
-          </p>
+          <div>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--imperial-emerald)', letterSpacing: '-0.02em', margin: 0 }}>Service Catalog</h1>
+            <p style={{ color: 'var(--muted-jade)', fontSize: '0.875rem', fontWeight: '500', marginTop: '0.25rem' }}>Architect and manage service offerings and pricing tiers</p>
+          </div>
         </div>
         <button
           onClick={() => {
@@ -279,62 +261,19 @@ export default function PlansPage() {
         </button>
       </div>
 
-      {/* KPI Section */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
-        gap: '1.5rem', 
-        marginBottom: '2.5rem' 
-      }}>
+      {/* KPI row - no cards */}
+      <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(11, 46, 43, 0.06)', flexWrap: 'wrap' }}>
         {stats.map((stat, idx) => (
-          <div key={idx} style={{ 
-            background: 'white', 
-            padding: '1.5rem', 
-            borderRadius: '1.25rem', 
-            boxShadow: '0 4px 20px rgba(11, 46, 43, 0.04)',
-            border: '1px solid rgba(196, 183, 91, 0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1.25rem'
-          }}>
-            <div style={{ 
-              width: '56px', 
-              height: '56px', 
-              borderRadius: '1rem', 
-              background: `rgba(${stat.color === 'var(--imperial-emerald)' ? '11, 46, 43' : '16, 185, 129'}, 0.08)`, 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              color: stat.color
-            }}>
-              <stat.icon size={28} />
-            </div>
-            <div>
-              <div style={{ fontSize: '0.8125rem', fontWeight: '700', color: 'var(--muted-jade)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
-                {stat.label}
-              </div>
-              <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--imperial-emerald)', lineHeight: 1 }}>
-                {stat.value}
-              </div>
-            </div>
+          <div key={idx}>
+            <div style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--muted-jade)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{stat.label}</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--imperial-emerald)', lineHeight: 1 }}>{stat.value}</div>
           </div>
         ))}
       </div>
 
-      {/* Filters & Table */}
-      <div style={{ 
-        background: 'white', 
-        borderRadius: '1.5rem', 
-        border: '1px solid rgba(196, 183, 91, 0.15)',
-        boxShadow: '0 10px 30px rgba(11, 46, 43, 0.04)',
-        overflow: 'hidden'
-      }}>
-        <div style={{ 
-          padding: '1.5rem 2rem', 
-          borderBottom: '1px solid rgba(196, 183, 91, 0.1)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+      {/* Filters & Table - no box */}
+      <div style={{ overflow: 'hidden' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(11, 46, 43, 0.08)',
           flexWrap: 'wrap',
           gap: '1.5rem'
         }}>

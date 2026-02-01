@@ -17,7 +17,7 @@ export interface IClient extends Document {
   // Plan Management
   planType?: 'REGULAR' | 'POC';
   pricePerLicense?: number;
-  currency?: 'USD' | 'INR';
+  currency?: 'USD' | 'INR' | 'EUR';
   customPlanName?: string; // Used when plan is "Other"
   // Discount
   discountPercentage?: number; // Optional discount percentage (0-100)
@@ -131,7 +131,7 @@ const ClientSchema = new Schema<IClient>(
     },
     currency: {
       type: String,
-      enum: ['USD', 'INR'],
+      enum: ['USD', 'INR', 'EUR'],
       required: false,
     },
     customPlanName: {

@@ -34,7 +34,7 @@ export const createClientSchema = z.object({
   customPlanName: z.string().max(200).optional(),
   planType: z.enum(['REGULAR', 'POC']).optional(),
   pricePerLicense: z.number().min(0).optional(),
-  currency: z.enum(['USD', 'INR']).optional().default('USD'),
+  currency: z.enum(['USD', 'INR', 'EUR']).optional().default('USD'),
   numberOfLicenses: z.number().int().min(0).default(0),
   numberOfSdrs: z.number().int().min(0).optional(),
   discountPercentage: z.number().min(0).max(100).optional(),

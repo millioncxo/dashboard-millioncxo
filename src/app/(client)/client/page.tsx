@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiFetch, ApiError } from '@/lib/api-client';
 import LogoComponent from '@/components/LogoComponent';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Bell, TrendingUp, Activity, CheckCircle2, Circle, ArrowRight, Download, Eye, FileText, ExternalLink } from 'lucide-react';
@@ -51,17 +52,14 @@ export default function ClientDashboard() {
 
   const fetchDashboard = useCallback(async () => {
     try {
-      const response = await fetch('/api/client/dashboard');
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          router.push('/login');
-          return;
-        }
-        throw new Error('Failed to fetch dashboard data');
-      }
+      const response = await apiFetch('/api/client/dashboard');
       const result = await response.json();
       setData(result);
     } catch (err: any) {
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        router.push('/login');
+        return;
+      }
       setError(err.message || 'Failed to load dashboard');
     } finally {
       setLoading(false);
@@ -70,13 +68,7 @@ export default function ClientDashboard() {
 
   const fetchUpdates = useCallback(async () => {
     try {
-      const response = await fetch('/api/client/updates');
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          return;
-        }
-        throw new Error('Failed to fetch updates');
-      }
+      const response = await apiFetch('/api/client/updates');
       const result = await response.json();
       setUpdates(result.updates || []);
     } catch (err: any) {
@@ -120,13 +112,7 @@ export default function ClientDashboard() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await fetch('/api/client/dashboard/stats');
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          return;
-        }
-        throw new Error('Failed to fetch stats');
-      }
+      const response = await apiFetch('/api/client/dashboard/stats');
       const result = await response.json();
       setStats(result.stats);
     } catch (err: any) {
@@ -138,13 +124,7 @@ export default function ClientDashboard() {
 
   const fetchCharts = useCallback(async () => {
     try {
-      const response = await fetch('/api/client/dashboard/charts');
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          return;
-        }
-        throw new Error('Failed to fetch charts');
-      }
+      const response = await apiFetch('/api/client/dashboard/charts');
       const result = await response.json();
       setChartData(result.charts);
     } catch (err: any) {
@@ -156,13 +136,7 @@ export default function ClientDashboard() {
 
   const fetchBilling = useCallback(async () => {
     try {
-      const response = await fetch('/api/client/billing');
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          return;
-        }
-        throw new Error('Failed to fetch billing');
-      }
+      const response = await apiFetch('/api/client/billing');
       const result = await response.json();
       setBillingData(result.billing);
     } catch (err: any) {

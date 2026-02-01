@@ -366,38 +366,13 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, var(--ivory-silk) 0%, #f0ede8 100%)',
-      padding: '1.5rem'
-    }}>
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        gap: '1rem', 
-        marginBottom: '2rem',
-        background: 'white',
-        padding: '1.25rem 1.5rem',
-        borderRadius: '1rem',
-        boxShadow: '0 2px 12px rgba(11, 46, 43, 0.04)',
-        border: '1px solid rgba(196, 183, 91, 0.15)'
-      }}>
+    <div style={{ minHeight: '100vh', background: 'var(--ivory-silk)', padding: '1.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(11, 46, 43, 0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
           <LogoComponent width={42} height={24} hoverGradient={true} />
           <div>
-            <h1 style={{ 
-              fontSize: '1.75rem', 
-              fontWeight: '800', 
-              color: 'var(--imperial-emerald)',
-              letterSpacing: '-0.02em',
-              lineHeight: 1.2
-            }}>
-              Billing & Ledger
-            </h1>
-            <p style={{ color: 'var(--muted-jade)', fontSize: '0.875rem', fontWeight: '500' }}>
-              Financial oversight and invoice lifecycle management
-            </p>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--imperial-emerald)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Billing & Ledger</h1>
+            <p style={{ color: 'var(--muted-jade)', fontSize: '0.875rem', fontWeight: '500' }}>Financial oversight and invoice lifecycle management</p>
           </div>
         </div>
         <button
@@ -424,197 +399,27 @@ export default function InvoicesPage() {
       </div>
 
       {error && (
-        <div style={{ 
-          background: '#fee2e2', 
-          color: '#dc2626', 
-          padding: '1rem 1.25rem',
-          borderRadius: '0.75rem',
-          marginBottom: '1.5rem',
-          border: '1px solid #fecaca',
-          fontSize: '0.875rem',
-          fontWeight: '500',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          position: 'relative'
-        }}>
-          <AlertCircle size={18} />
-          <div style={{ flex: 1 }}>{error}</div>
-          <button
-            onClick={() => setError('')}
-            style={{ background: 'transparent', border: 'none', color: '#dc2626', cursor: 'pointer', padding: '0.25rem' }}
-          >
-            <X size={18} />
-          </button>
+        <div style={{ background: 'rgba(220, 38, 38, 0.08)', color: '#b91c1c', padding: '0.75rem 1rem', borderRadius: '0.5rem', marginBottom: '1rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <AlertCircle size={16} />
+          <span style={{ flex: 1 }}>{error}</span>
+          <button onClick={() => setError('')} style={{ background: 'transparent', border: 'none', color: '#b91c1c', cursor: 'pointer', padding: '0.25rem' }}><X size={16} /></button>
         </div>
       )}
 
-      {/* Summary Cards */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
-        gap: '1rem', 
-        marginBottom: '2rem' 
-      }}>
-        <div style={{ 
-          background: 'white',
-          padding: '1.25rem',
-          borderRadius: '1rem',
-          border: '1px solid rgba(196, 183, 91, 0.15)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-        }}>
-          <div style={{ 
-            width: '42px', 
-            height: '42px', 
-            borderRadius: '10px', 
-            background: 'rgba(11, 46, 43, 0.05)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            color: 'var(--imperial-emerald)'
-          }}>
-            <FileText size={20} />
-          </div>
-          <div>
-            <div style={{ color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>Total Invoices</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--imperial-emerald)' }}>{summary.totalInvoices}</div>
-          </div>
-        </div>
-
-        <div style={{ 
-          background: 'white',
-          padding: '1.25rem',
-          borderRadius: '1rem',
-          border: '1px solid rgba(196, 183, 91, 0.15)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-        }}>
-          <div style={{ 
-            width: '42px', 
-            height: '42px', 
-            borderRadius: '10px', 
-            background: 'rgba(11, 46, 43, 0.05)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            color: 'var(--imperial-emerald)'
-          }}>
-            <TrendingUp size={20} />
-          </div>
-          <div>
-            <div style={{ color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>Total Volume</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--imperial-emerald)' }}>
-              ${summary.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ 
-          background: 'white',
-          padding: '1.25rem',
-          borderRadius: '1rem',
-          border: '1px solid rgba(196, 183, 91, 0.15)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-        }}>
-          <div style={{ 
-            width: '42px', 
-            height: '42px', 
-            borderRadius: '10px', 
-            background: 'rgba(16, 185, 129, 0.1)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            color: '#10b981'
-          }}>
-            <CheckCircle2 size={20} />
-          </div>
-          <div>
-            <div style={{ color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>Paid to Date</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#10b981' }}>
-              ${summary.paidAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ 
-          background: 'white',
-          padding: '1.25rem',
-          borderRadius: '1rem',
-          border: '1px solid rgba(196, 183, 91, 0.15)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-        }}>
-          <div style={{ 
-            width: '42px', 
-            height: '42px', 
-            borderRadius: '10px', 
-            background: 'rgba(245, 158, 11, 0.1)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            color: '#f59e0b'
-          }}>
-            <Clock size={20} />
-          </div>
-          <div>
-            <div style={{ color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>Outstanding</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#f59e0b' }}>
-              ${summary.outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ 
-          background: 'white',
-          padding: '1.25rem',
-          borderRadius: '1rem',
-          border: '1px solid rgba(196, 183, 91, 0.15)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-        }}>
-          <div style={{ 
-            width: '42px', 
-            height: '42px', 
-            borderRadius: '10px', 
-            background: 'rgba(239, 68, 68, 0.1)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            color: '#ef4444'
-          }}>
-            <AlertCircle size={20} />
-          </div>
-          <div>
-            <div style={{ color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>Overdue</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#ef4444' }}>{summary.overdueCount}</div>
-          </div>
-        </div>
+      {/* Summary row - no cards */}
+      <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(11, 46, 43, 0.06)', flexWrap: 'wrap' }}>
+        <div><div style={{ color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Total Invoices</div><div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--imperial-emerald)' }}>{summary.totalInvoices}</div></div>
+        <div><div style={{ color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Total Volume</div><div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--imperial-emerald)' }}>${summary.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div></div>
+        <div><div style={{ color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Paid</div><div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0d9488' }}>${summary.paidAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div></div>
+        <div><div style={{ color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Outstanding</div><div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#d97706' }}>${summary.outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div></div>
+        <div><div style={{ color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Overdue</div><div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#dc2626' }}>{summary.overdueCount}</div></div>
       </div>
 
-      {/* Filters */}
-      <div style={{ 
-        background: 'white', 
-        padding: '1.25rem', 
-        borderRadius: '1rem', 
-        border: '1px solid rgba(196, 183, 91, 0.15)',
-        boxShadow: '0 4px 12px rgba(11, 46, 43, 0.03)',
-        marginBottom: '1.5rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
-          <Filter size={18} color="var(--imperial-emerald)" />
-          <h3 style={{ fontSize: '0.9375rem', fontWeight: '750', color: 'var(--imperial-emerald)' }}>Advanced Filters</h3>
+      {/* Filters - no box */}
+      <div style={{ marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+          <Filter size={16} color="var(--imperial-emerald)" />
+          <span style={{ fontSize: '0.9375rem', fontWeight: '600', color: 'var(--imperial-emerald)' }}>Filters</span>
         </div>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
@@ -883,15 +688,8 @@ export default function InvoicesPage() {
         </div>
       )}
 
-      {/* Invoice Table */}
-      <div style={{ 
-        background: 'white', 
-        borderRadius: '1.25rem', 
-        border: '1px solid rgba(196, 183, 91, 0.15)',
-        boxShadow: '0 4px 24px rgba(11, 46, 43, 0.04)',
-        overflow: 'hidden',
-        marginBottom: '2rem'
-      }}>
+      {/* Invoice Table - no box */}
+      <div style={{ overflow: 'hidden' }}>
         <div
           style={{
             padding: '1.5rem',

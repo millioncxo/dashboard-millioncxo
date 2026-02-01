@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiFetch, ApiError } from '@/lib/api-client';
 import ReportsTable from '@/components/sdr/ReportsTable';
 import LogoComponent from '@/components/LogoComponent';
 import { FileText, Plus, X, Calendar, User, ShieldCheck, BarChart3, Info } from 'lucide-react';
@@ -72,17 +73,14 @@ export default function SdrReportsPage() {
 
   const fetchReports = useCallback(async () => {
     try {
-      const response = await fetch('/api/sdr/reports');
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          router.push('/login');
-          return;
-        }
-        throw new Error('Failed to fetch reports');
-      }
+      const response = await apiFetch('/api/sdr/reports');
       const data = await response.json();
       setReports(data.reports || []);
     } catch (err: any) {
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        router.push('/login');
+        return;
+      }
       setError(err.message || 'Failed to load reports');
     } finally {
       setLoading(false);
@@ -91,27 +89,29 @@ export default function SdrReportsPage() {
 
   const fetchClients = useCallback(async () => {
     try {
-      const response = await fetch('/api/sdr/clients');
-      if (response.ok) {
-        const data = await response.json();
-        setClients(data.clients || []);
-      }
-    } catch (err: any) {
+      const response = await apiFetch('/api/sdr/clients');
+      const data = await response.json();
+      setClients(data.clients || []);
+    } catch {
       // Silently handle client fetch errors for reports page
     }
   }, []);
 
+  // Fetch reports and clients on mount (parallel)
+  useEffect(() => {
+    fetchReports();
+    fetchClients();
+  }, [fetchReports, fetchClients]);
+
   const fetchLicensesForClient = async (clientId: string) => {
     try {
-      const response = await fetch(`/api/sdr/clients/${clientId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setLicenses(prev => ({
-          ...prev,
-          [clientId]: data.client.licenses || [],
-        }));
-      }
-    } catch (err: any) {
+      const response = await apiFetch(`/api/sdr/clients/${clientId}`);
+      const data = await response.json();
+      setLicenses(prev => ({
+        ...prev,
+        [clientId]: data.client?.licenses || [],
+      }));
+    } catch {
       // Silently handle license fetch errors
     }
   };
@@ -192,19 +192,17 @@ export default function SdrReportsPage() {
   return (
     <div style={{ 
       padding: '1.5rem',
-      background: 'linear-gradient(135deg, var(--ivory-silk) 0%, #f0ede8 100%)',
+      background: 'var(--ivory-silk)',
       minHeight: '100vh'
     }}>
-      {/* Header Section */}
+      {/* Header - minimal, no box */}
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'space-between',
         marginBottom: '1.5rem',
-        padding: '1.25rem 1.5rem',
-        background: 'white',
-        borderRadius: '1rem',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
+        paddingBottom: '1rem',
+        borderBottom: '1px solid rgba(11, 46, 43, 0.08)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <LogoComponent width={48} height={26} hoverGradient={true} />
@@ -218,11 +216,7 @@ export default function SdrReportsPage() {
             }}>
               Activity Reports
             </h1>
-            <p style={{ 
-              color: 'var(--muted-jade)', 
-              fontSize: '0.875rem',
-              fontWeight: '500'
-            }}>
+            <p style={{ color: 'var(--muted-jade)', fontSize: '0.875rem', fontWeight: '500' }}>
               Generate and manage client performance reports
             </p>
           </div>
@@ -230,7 +224,7 @@ export default function SdrReportsPage() {
         <button
           onClick={() => setShowForm(true)}
           className="btn-primary"
-          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1.25rem', borderRadius: '0.75rem', fontWeight: '700' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1.25rem', borderRadius: '0.5rem', fontWeight: '700' }}
         >
           <Plus size={18} />
           Create Report
@@ -238,7 +232,7 @@ export default function SdrReportsPage() {
       </div>
 
       {error && (
-        <div className="card" style={{ background: '#fee2e2', color: '#dc2626', marginBottom: '1rem' }}>
+        <div style={{ background: 'rgba(220, 38, 38, 0.08)', color: '#b91c1c', marginBottom: '1rem', padding: '0.75rem 1rem', borderRadius: '0.5rem', fontSize: '0.875rem' }}>
           {error}
         </div>
       )}
@@ -514,16 +508,13 @@ export default function SdrReportsPage() {
         </div>
       )}
 
-      <div className="card" style={{ padding: '0', borderRadius: '1rem', background: 'white', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)', border: '1px solid rgba(196, 183, 91, 0.2)', overflow: 'hidden' }}>
-        <div style={{ padding: '1.25rem 1.5rem', background: 'rgba(196, 183, 91, 0.05)', borderBottom: '1px solid rgba(196, 183, 91, 0.15)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <ShieldCheck size={18} color="var(--imperial-emerald)" />
-          <h3 style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--imperial-emerald)', margin: 0 }}>
-            Published Reports Archive
-          </h3>
+      {/* Reports list - no card wrapper */}
+      <div style={{ marginTop: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--imperial-emerald)', fontSize: '0.9375rem', fontWeight: '700' }}>
+          <ShieldCheck size={18} />
+          <span>Published Reports</span>
         </div>
-        <div style={{ padding: '1rem' }}>
-          <ReportsTable refreshTrigger={refreshTrigger} />
-        </div>
+        <ReportsTable refreshTrigger={refreshTrigger} />
       </div>
     </div>
   );

@@ -65,8 +65,7 @@ const PlanSchema = new Schema<IPlan>(
   }
 );
 
-// Index for faster queries
-PlanSchema.index({ name: 1 });
+// name already has unique: true which creates an index; no need for duplicate
 
 const Plan: Model<IPlan> =
   mongoose.models.Plan || mongoose.model<IPlan>('Plan', PlanSchema);

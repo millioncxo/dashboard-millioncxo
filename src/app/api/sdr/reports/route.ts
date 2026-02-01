@@ -180,11 +180,12 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Fetch reports
+    // Fetch reports (limit 500 for performance)
     const reports = await Report.find(query)
       .populate('clientId', 'businessName')
       .populate('licenseId', 'label serviceType productOrServiceName')
       .sort({ periodStart: -1, createdAt: -1 })
+      .limit(500)
       .lean();
 
     return NextResponse.json(

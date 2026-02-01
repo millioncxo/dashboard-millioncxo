@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiFetch, ApiError } from '@/lib/api-client';
 import LogoComponent from '@/components/LogoComponent';
 import StatsCards from '@/components/sdr/StatsCards';
 import ClientDetailPanel from '@/components/sdr/ClientDetailPanel';
@@ -10,6 +11,7 @@ import UpdatesTimeline from '@/components/sdr/UpdatesTimeline';
 import UpdatesTable from '@/components/sdr/UpdatesTable';
 import ViewToggle, { ViewMode } from '@/components/sdr/ViewToggle';
 import UpdateForm from '@/components/sdr/UpdateForm';
+import { ArrowUpRight } from 'lucide-react';
 
 interface Client {
   clientId: string;
@@ -146,21 +148,15 @@ export default function SdrDashboard() {
 
   const fetchClients = useCallback(async () => {
     try {
-      const response = await fetch('/api/sdr/clients');
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          router.push('/login');
-          return;
-        }
-        throw new Error('Failed to fetch clients');
-      }
+      const response = await apiFetch('/api/sdr/clients');
       const data = await response.json();
       setClients(data.clients || []);
-      // Update stats from API response if available
-      if (data.stats) {
-        setStatsFromApi(data.stats);
-      }
+      if (data.stats) setStatsFromApi(data.stats);
     } catch (err: any) {
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        router.push('/login');
+        return;
+      }
       setError(err.message || 'Failed to load clients');
     } finally {
       setLoading(false);
@@ -321,30 +317,22 @@ export default function SdrDashboard() {
   return (
     <div style={{ 
       padding: '1.5rem',
-      background: 'linear-gradient(135deg, var(--ivory-silk) 0%, #f0ede8 100%)',
+      background: 'var(--ivory-silk)',
       minHeight: '100vh'
     }}>
-      {/* Header Section */}
+      {/* Header - minimal, no box */}
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'space-between',
-        marginBottom: '1.5rem',
-        padding: '1.25rem 1.5rem',
-        background: 'white',
-        borderRadius: '1rem',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
+        marginBottom: '1rem',
+        paddingBottom: '1rem',
+        borderBottom: '1px solid rgba(11, 46, 43, 0.08)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <LogoComponent width={48} height={26} hoverGradient={true} />
           <div>
-            <h1 style={{ 
-              fontSize: '1.75rem', 
-              fontWeight: '800', 
-              marginBottom: '0.125rem', 
-              color: 'var(--imperial-emerald)',
-              letterSpacing: '-0.02em'
-            }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.125rem', color: 'var(--imperial-emerald)', letterSpacing: '-0.02em' }}>
               SDR Workspace
             </h1>
             <p style={{ color: 'var(--muted-jade)', fontSize: '0.875rem', fontWeight: '500' }}>
@@ -352,7 +340,7 @@ export default function SdrDashboard() {
             </p>
           </div>
         </div>
-        <div id="success-message" style={{ display: 'none', color: '#10b981', fontWeight: '700', fontSize: '0.875rem', background: 'rgba(16, 185, 129, 0.1)', padding: '0.5rem 1rem', borderRadius: '0.5rem' }}>
+        <div id="success-message" style={{ display: 'none', color: '#10b981', fontWeight: '600', fontSize: '0.875rem' }}>
           ✓ Changes saved successfully
         </div>
       </div>
@@ -364,20 +352,13 @@ export default function SdrDashboard() {
       />
 
       {error && (
-        <div className="card" style={{ background: '#fee2e2', color: '#dc2626', marginBottom: '1.5rem' }}>
+        <div style={{ background: 'rgba(220, 38, 38, 0.08)', color: '#b91c1c', marginBottom: '1rem', padding: '0.75rem 1rem', borderRadius: '0.5rem', fontSize: '0.875rem' }}>
           {error}
         </div>
       )}
 
-      {/* Main Content Area */}
-      <div className="card" style={{ 
-        padding: '0', 
-        borderRadius: '1rem', 
-        background: 'white', 
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
-        border: '1px solid rgba(196, 183, 91, 0.15)',
-        overflow: 'hidden'
-      }}>
+      {/* Main content - no card wrapper */}
+      <div style={{ overflow: 'hidden' }}>
         {clients.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📋</div>
@@ -388,60 +369,28 @@ export default function SdrDashboard() {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ background: 'rgba(11, 46, 43, 0.02)', borderBottom: '2px solid rgba(196, 183, 91, 0.15)' }}>
+                <tr style={{ borderBottom: '1px solid rgba(11, 46, 43, 0.1)' }}>
                   <th style={{ 
-                    padding: '1rem', 
+                    padding: '0.875rem 1rem', 
                     textAlign: 'left', 
-                    fontWeight: '700', 
+                    fontWeight: '600', 
                     color: 'var(--imperial-emerald)',
                     fontSize: '0.75rem',
                     textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
+                    letterSpacing: '0.04em'
                   }}>
                     Client Organization
                   </th>
-                  <th style={{ 
-                    padding: '1rem', 
-                    textAlign: 'left', 
-                    fontWeight: '700', 
-                    color: 'var(--imperial-emerald)',
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
+                  <th style={{ padding: '0.875rem 1rem', textAlign: 'left', fontWeight: '600', color: 'var(--imperial-emerald)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     Primary Contact
                   </th>
-                  <th style={{ 
-                    padding: '1rem', 
-                    textAlign: 'center', 
-                    fontWeight: '700', 
-                    color: 'var(--imperial-emerald)',
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
+                  <th style={{ padding: '0.875rem 1rem', textAlign: 'center', fontWeight: '600', color: 'var(--imperial-emerald)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     Licenses
                   </th>
-                  <th style={{ 
-                    padding: '1rem', 
-                    textAlign: 'left', 
-                    fontWeight: '700', 
-                    color: 'var(--imperial-emerald)',
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
+                  <th style={{ padding: '0.875rem 1rem', textAlign: 'left', fontWeight: '600', color: 'var(--imperial-emerald)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     Activity
                   </th>
-                  <th style={{ 
-                    padding: '1rem', 
-                    textAlign: 'center', 
-                    fontWeight: '700', 
-                    color: 'var(--imperial-emerald)',
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
+                  <th style={{ padding: '0.875rem 1rem', textAlign: 'center', fontWeight: '600', color: 'var(--imperial-emerald)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     Workspace
                   </th>
                 </tr>
@@ -455,21 +404,17 @@ export default function SdrDashboard() {
                   <React.Fragment key={client.clientId}>
                     <tr 
                       style={{ 
-                        borderBottom: '1px solid rgba(196, 183, 91, 0.1)',
+                        borderBottom: '1px solid rgba(11, 46, 43, 0.06)',
                         transition: 'all 0.2s ease',
                         cursor: 'pointer',
-                        background: expandedClient === client.clientId ? 'rgba(196, 183, 91, 0.05)' : 'transparent'
+                        background: expandedClient === client.clientId ? 'rgba(11, 46, 43, 0.03)' : 'transparent'
                       }}
                       onClick={() => fetchClientDetails(client.clientId)}
                       onMouseEnter={(e) => {
-                        if (expandedClient !== client.clientId) {
-                          e.currentTarget.style.background = 'rgba(196, 183, 91, 0.03)';
-                        }
+                        if (expandedClient !== client.clientId) e.currentTarget.style.background = 'rgba(11, 46, 43, 0.02)';
                       }}
                       onMouseLeave={(e) => {
-                        if (expandedClient !== client.clientId) {
-                          e.currentTarget.style.background = '';
-                        }
+                        if (expandedClient !== client.clientId) e.currentTarget.style.background = '';
                       }}
                     >
                       <td style={{ padding: '1rem' }}>
@@ -526,74 +471,52 @@ export default function SdrDashboard() {
                           )}
                         </div>
                       </td>
-                      <td style={{ padding: '1rem', textAlign: 'center' }}>
-                        <div style={{ 
-                          display: 'inline-flex',
-                          padding: '0.375rem 0.75rem',
-                          borderRadius: '0.5rem',
-                          background: expandedClient === client.clientId ? 'var(--imperial-emerald)' : 'transparent',
-                          color: expandedClient === client.clientId ? 'white' : 'var(--imperial-emerald)',
-                          border: `1px solid ${expandedClient === client.clientId ? 'var(--imperial-emerald)' : 'rgba(11, 46, 43, 0.15)'}`,
-                          fontSize: '0.75rem',
-                          fontWeight: '700',
-                          transition: 'all 0.2s ease'
-                        }}>
-                          {expandedClient === client.clientId ? 'Active' : 'Open'}
-                        </div>
+                      <td style={{ padding: '1rem', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+                        <a
+                          href={`/sdr/clients/${client.clientId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ 
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.375rem',
+                            padding: '0.375rem 0.75rem',
+                            borderRadius: '0.5rem',
+                            background: expandedClient === client.clientId ? 'var(--imperial-emerald)' : 'transparent',
+                            color: expandedClient === client.clientId ? 'white' : 'var(--imperial-emerald)',
+                            border: `1px solid ${expandedClient === client.clientId ? 'var(--imperial-emerald)' : 'rgba(11, 46, 43, 0.15)'}`,
+                            fontSize: '0.75rem',
+                            fontWeight: '700',
+                            transition: 'all 0.2s ease',
+                            textDecoration: 'none',
+                            cursor: 'pointer'
+                          }}
+                          title="Open workspace"
+                        >
+                          {expandedClient === client.clientId ? 'Active' : (
+                            <>Open <ArrowUpRight size={14} /></>
+                          )}
+                        </a>
                       </td>
                     </tr>
                     {expandedClient === client.clientId && (
                       <tr>
-                        <td colSpan={5} style={{ padding: '0', background: 'rgba(196, 183, 91, 0.02)' }}>
-                          <div style={{ 
-                            padding: '2rem', 
-                            borderBottom: '2px solid rgba(196, 183, 91, 0.1)',
-                            animation: 'fadeIn 0.3s ease-out'
-                          }}>
-                            {/* Workspace Header */}
-                            <div style={{ 
-                              display: 'flex', 
-                              justifyContent: 'space-between', 
-                              alignItems: 'center', 
-                              marginBottom: '2rem',
-                              borderBottom: '1px solid rgba(11, 46, 43, 0.05)',
-                              paddingBottom: '1rem'
-                            }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <div style={{ 
-                                  width: '40px', 
-                                  height: '40px', 
-                                  borderRadius: '10px', 
-                                  background: 'var(--imperial-emerald)', 
-                                  display: 'flex', 
-                                  alignItems: 'center', 
-                                  justifyContent: 'center',
-                                  color: 'white',
-                                  fontWeight: '800'
-                                }}>
+                        <td colSpan={5} style={{ padding: '0', background: 'rgba(11, 46, 43, 0.02)' }}>
+                          <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid rgba(11, 46, 43, 0.06)', animation: 'fadeIn 0.3s ease-out' }}>
+                            {/* Workspace header - minimal */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(11, 46, 43, 0.06)' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--imperial-emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '700', fontSize: '0.9375rem' }}>
                                   {client.businessName.charAt(0)}
                                 </div>
                                 <div>
-                                  <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: 'var(--imperial-emerald)', margin: 0 }}>
-                                    {client.businessName}
-                                  </h3>
-                                  <div style={{ fontSize: '0.75rem', color: 'var(--muted-jade)', fontWeight: '500' }}>
-                                    Client Workspace
-                                  </div>
+                                  <h3 style={{ fontSize: '1.0625rem', fontWeight: '700', color: 'var(--imperial-emerald)', margin: 0 }}>{client.businessName}</h3>
+                                  <div style={{ fontSize: '0.75rem', color: 'var(--muted-jade)' }}>Client Workspace</div>
                                 </div>
                               </div>
                               <button 
                                 onClick={() => setExpandedClient(null)}
-                                style={{ 
-                                  padding: '0.5rem', 
-                                  borderRadius: '0.5rem', 
-                                  border: 'none', 
-                                  background: 'rgba(0,0,0,0.03)', 
-                                  cursor: 'pointer',
-                                  color: 'var(--muted-jade)',
-                                  fontSize: '0.75rem',
-                                  fontWeight: '600'
-                                }}
+                                style={{ padding: '0.375rem 0.75rem', borderRadius: '0.5rem', border: 'none', background: 'rgba(0,0,0,0.04)', cursor: 'pointer', color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600' }}
                               >
                                 Exit Workspace
                               </button>
@@ -623,7 +546,7 @@ export default function SdrDashboard() {
                             />
 
                             {/* Updates Section */}
-                            <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(196, 183, 91, 0.2)', paddingTop: '1.5rem' }}>
+                            <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(11, 46, 43, 0.06)' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
                                   <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: 'var(--imperial-emerald)', margin: 0 }}>

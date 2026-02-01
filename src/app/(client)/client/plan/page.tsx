@@ -14,7 +14,7 @@ interface Plan {
   numberOfLicenses?: number;
   planType?: 'REGULAR' | 'POC';
   pricePerLicense?: number;
-  currency?: 'USD' | 'INR';
+  currency?: 'USD' | 'INR' | 'EUR';
   totalCostOfService?: number;
   features?: string[];
 }

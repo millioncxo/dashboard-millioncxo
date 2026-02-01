@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import DataTable, { Column } from './DataTable';
 import FilterBar, { FilterState } from './FilterBar';
+import { apiFetch } from '@/lib/api-client';
 
 interface Report {
   _id: string;
@@ -76,11 +77,7 @@ export default function ReportsTable({ onExport, refreshTrigger }: ReportsTableP
         params.append('to', filters.dateTo);
       }
 
-      const response = await fetch(`/api/sdr/reports?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch reports');
-      }
-
+      const response = await apiFetch(`/api/sdr/reports?${params.toString()}`);
       const data = await response.json();
       let filteredReports = data.reports || [];
 
@@ -261,10 +258,10 @@ export default function ReportsTable({ onExport, refreshTrigger }: ReportsTableP
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--imperial-emerald)', margin: 0 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <span style={{ fontSize: '0.9375rem', fontWeight: '600', color: 'var(--imperial-emerald)' }}>
           Reports ({reports.length})
-        </h3>
+        </span>
         <button
           onClick={handleExport}
           className="btn-secondary"
@@ -297,81 +294,54 @@ export default function ReportsTable({ onExport, refreshTrigger }: ReportsTableP
         sortBy={sortBy}
         sortOrder={sortOrder}
         expandableRow={(row) => (
-          <div style={{ 
-            padding: '1.25rem', 
-            background: 'rgba(11, 46, 43, 0.03)', 
-            borderRadius: '0.75rem',
-            border: '1px solid rgba(0,0,0,0.05)'
-          }}>
-            <div style={{ marginBottom: '1.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <strong style={{ color: 'var(--imperial-emerald)', fontSize: '0.8125rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Executive Summary</strong>
-              </div>
-              <div style={{ 
-                padding: '1rem', 
-                background: 'white', 
-                borderRadius: '0.5rem', 
-                border: '1px solid rgba(196, 183, 91, 0.15)',
-                color: 'var(--imperial-emerald)', 
-                lineHeight: '1.7', 
-                fontSize: '0.875rem',
-                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
-              }}>
+          <div style={{ padding: '1rem', background: 'rgba(11, 46, 43, 0.02)' }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <div style={{ color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.375rem' }}>Executive Summary</div>
+              <div style={{ color: 'var(--imperial-emerald)', lineHeight: '1.65', fontSize: '0.875rem' }}>
                 {row.summary}
               </div>
             </div>
             {(row.inMailsSent !== undefined || row.inMailsPositiveResponse !== undefined || 
               row.connectionRequestsSent !== undefined || row.connectionRequestsPositiveResponse !== undefined) && (
-              <div style={{ 
-                marginTop: '1rem', 
-                padding: '1.25rem', 
-                background: 'rgba(59, 130, 246, 0.03)', 
-                borderRadius: '0.75rem', 
-                border: '1px solid rgba(59, 130, 246, 0.1)' 
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>Li</span>
-                  </div>
-                  <strong style={{ color: 'var(--imperial-emerald)', fontSize: '0.8125rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    LinkedIn Performance Metrics
-                  </strong>
+              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(11, 46, 43, 0.06)' }}>
+                <div style={{ color: 'var(--muted-jade)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+                  LinkedIn metrics
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.75rem' }}>
                   {row.inMailsSent !== undefined && (
-                    <div style={{ background: 'white', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid rgba(0,0,0,0.05)' }}>
-                      <div style={{ color: 'var(--muted-jade)', fontSize: '0.7rem', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.25rem' }}>InMails Sent</div>
-                      <div style={{ color: 'var(--imperial-emerald)', fontWeight: '700', fontSize: '1.125rem' }}>{row.inMailsSent}</div>
+                    <div>
+                      <div style={{ color: 'var(--muted-jade)', fontSize: '0.7rem', fontWeight: '600', marginBottom: '0.125rem' }}>InMails Sent</div>
+                      <div style={{ color: 'var(--imperial-emerald)', fontWeight: '700', fontSize: '1rem' }}>{row.inMailsSent}</div>
                     </div>
                   )}
                   {row.inMailsPositiveResponse !== undefined && (
-                    <div style={{ background: 'white', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid rgba(0,0,0,0.05)' }}>
-                      <div style={{ color: 'var(--muted-jade)', fontSize: '0.7rem', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Positive InMails</div>
+                    <div>
+                      <div style={{ color: 'var(--muted-jade)', fontSize: '0.7rem', fontWeight: '600', marginBottom: '0.125rem' }}>Positive InMails</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ color: '#10b981', fontWeight: '700', fontSize: '1.125rem' }}>{row.inMailsPositiveResponse}</div>
+                        <span style={{ color: '#0d9488', fontWeight: '700', fontSize: '1rem' }}>{row.inMailsPositiveResponse}</span>
                         {row.inMailsSent && row.inMailsSent > 0 && (
-                          <div style={{ fontSize: '0.75rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', padding: '0.125rem 0.375rem', borderRadius: '0.25rem', fontWeight: '600' }}>
-                            {((row.inMailsPositiveResponse / row.inMailsSent) * 100).toFixed(1)}%
-                          </div>
+                          <span style={{ fontSize: '0.7rem', color: '#0d9488', fontWeight: '600' }}>
+                            {((row.inMailsPositiveResponse / row.inMailsSent) * 100).toFixed(0)}%
+                          </span>
                         )}
                       </div>
                     </div>
                   )}
                   {row.connectionRequestsSent !== undefined && (
-                    <div style={{ background: 'white', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid rgba(0,0,0,0.05)' }}>
-                      <div style={{ color: 'var(--muted-jade)', fontSize: '0.7rem', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Connections Sent</div>
-                      <div style={{ color: 'var(--imperial-emerald)', fontWeight: '700', fontSize: '1.125rem' }}>{row.connectionRequestsSent}</div>
+                    <div>
+                      <div style={{ color: 'var(--muted-jade)', fontSize: '0.7rem', fontWeight: '600', marginBottom: '0.125rem' }}>Connections Sent</div>
+                      <div style={{ color: 'var(--imperial-emerald)', fontWeight: '700', fontSize: '1rem' }}>{row.connectionRequestsSent}</div>
                     </div>
                   )}
                   {row.connectionRequestsPositiveResponse !== undefined && (
-                    <div style={{ background: 'white', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid rgba(0,0,0,0.05)' }}>
-                      <div style={{ color: 'var(--muted-jade)', fontSize: '0.7rem', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Positive Conn.</div>
+                    <div>
+                      <div style={{ color: 'var(--muted-jade)', fontSize: '0.7rem', fontWeight: '600', marginBottom: '0.125rem' }}>Positive Conn.</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ color: '#10b981', fontWeight: '700', fontSize: '1.125rem' }}>{row.connectionRequestsPositiveResponse}</div>
+                        <span style={{ color: '#0d9488', fontWeight: '700', fontSize: '1rem' }}>{row.connectionRequestsPositiveResponse}</span>
                         {row.connectionRequestsSent && row.connectionRequestsSent > 0 && (
-                          <div style={{ fontSize: '0.75rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', padding: '0.125rem 0.375rem', borderRadius: '0.25rem', fontWeight: '600' }}>
-                            {((row.connectionRequestsPositiveResponse / row.connectionRequestsSent) * 100).toFixed(1)}%
-                          </div>
+                          <span style={{ fontSize: '0.7rem', color: '#0d9488', fontWeight: '600' }}>
+                            {((row.connectionRequestsPositiveResponse / row.connectionRequestsSent) * 100).toFixed(0)}%
+                          </span>
                         )}
                       </div>
                     </div>

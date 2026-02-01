@@ -1,9 +1,20 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { defaultMetadata } from '@/lib/metadata';
 import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = defaultMetadata;
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#0B2E2B' },
+    { media: '(prefers-color-scheme: dark)', color: '#0B2E2B' },
+  ],
+};
 
 export default function RootLayout({
   children,

@@ -187,40 +187,15 @@ export default function UsersPage() {
   }
 
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, var(--ivory-silk) 0%, #f0ede8 100%)',
-      padding: '1.5rem'
-    }}>
+    <div style={{ minHeight: '100vh', background: 'var(--ivory-silk)', padding: '1.5rem' }}>
       <NotificationContainer notifications={notifications} onDismiss={dismissNotification} />
       
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        gap: '1rem', 
-        marginBottom: '2rem',
-        background: 'white',
-        padding: '1.25rem 1.5rem',
-        borderRadius: '1rem',
-        boxShadow: '0 2px 12px rgba(11, 46, 43, 0.04)',
-        border: '1px solid rgba(196, 183, 91, 0.15)'
-      }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(11, 46, 43, 0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
           <LogoComponent width={42} height={24} hoverGradient={true} />
           <div>
-            <h1 style={{ 
-              fontSize: '1.75rem', 
-              fontWeight: '800', 
-              color: 'var(--imperial-emerald)',
-              letterSpacing: '-0.02em',
-              lineHeight: 1.2
-            }}>
-              Team Intelligence
-            </h1>
-            <p style={{ color: 'var(--muted-jade)', fontSize: '0.875rem', fontWeight: '500' }}>
-              Manage administrative access and SDR workspace assignments
-            </p>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--imperial-emerald)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Team Intelligence</h1>
+            <p style={{ color: 'var(--muted-jade)', fontSize: '0.875rem', fontWeight: '500' }}>Manage administrative access and SDR workspace assignments</p>
           </div>
         </div>
         {!showForm && (
@@ -245,20 +220,8 @@ export default function UsersPage() {
       </div>
 
       {error && (
-        <div style={{ 
-          background: '#fee2e2', 
-          color: '#dc2626', 
-          padding: '1rem 1.25rem',
-          borderRadius: '0.75rem',
-          marginBottom: '1.5rem',
-          border: '1px solid #fecaca',
-          fontSize: '0.875rem',
-          fontWeight: '500',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem'
-        }}>
-          <AlertCircle size={18} />
+        <div style={{ background: 'rgba(220, 38, 38, 0.08)', color: '#b91c1c', padding: '0.75rem 1rem', borderRadius: '0.5rem', marginBottom: '1rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <AlertCircle size={16} />
           {error}
         </div>
       )}
@@ -548,29 +511,12 @@ export default function UsersPage() {
             </div>
           </div>
 
-          <div style={{ 
-            background: 'white', 
-            borderRadius: '1.25rem', 
-            border: '1px solid rgba(196, 183, 91, 0.15)',
-            boxShadow: '0 4px 24px rgba(11, 46, 43, 0.04)',
-            overflow: 'hidden'
-          }}>
-            <div
-              style={{
-                padding: '1.5rem',
-                borderBottom: '1px solid rgba(196, 183, 91, 0.1)',
-                background: 'linear-gradient(to right, rgba(196, 183, 91, 0.05), transparent)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
+          <div style={{ overflow: 'hidden' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(11, 46, 43, 0.08)' }}>
               <div>
-                <h2 style={{ fontSize: '1.25rem', color: 'var(--imperial-emerald)', fontWeight: '750', letterSpacing: '-0.01em' }}>
-                  Active Team
-                </h2>
+                <h2 style={{ fontSize: '1.125rem', color: 'var(--imperial-emerald)', fontWeight: '700', margin: 0 }}>Active Team</h2>
                 <p style={{ color: 'var(--muted-jade)', fontSize: '0.8125rem', fontWeight: '500', marginTop: '0.25rem' }}>
-                  {filteredUsers.length} team members registered in the system
+                  {filteredUsers.length} team members
                 </p>
               </div>
             </div>
